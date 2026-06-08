@@ -1,886 +1,788 @@
 
+import { useState } from "react";
 
-
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
-
-// ============================================================================
-// 1CARUS Agency Website
-// React + TypeScript + Tailwind + Framer Motion
-// Premium cinematic conversion - With Game-Style Team Modal Cards
-// ============================================================================
-
-// ----------------------------- Types ----------------------------------------
-interface StatItem {
-  target: number;
-  suffix: string;
-  label: string;
-  isDecimal?: boolean;
-}
-
-interface TeamMember {
-  id: number;
-  name: string;
-  role: string;
-  subtitle: string;
-  bio: string;
-  specialties: string[];
-  quote: string;
-  gameStyle: string;
-  gradientFrom: string;
-  gradientTo: string;
-}
-
-// ----------------------------- Team Data ------------------------------------
-const teamMembers: TeamMember[] = [
+const sections = [
   {
-    id: 1,
-    name: "Arjun Mehta",
-    role: "Creative Director",
-    subtitle: "The Visionary",
-    bio: "Former creative lead at award-winning studios, Arjun brings cinematic storytelling and strategic vision. He has directed campaigns for top-tier brands and festivals across India.",
-    specialties: ["Direction", "Storyboarding", "Client Alchemy"],
-    quote: "Every frame must fight for attention.",
-    gameStyle: "GTA VI - Mastermind",
-    gradientFrom: "#d4a843",
-    gradientTo: "#e8822a",
+    id: "overview",
+    label: "Overview",
+    icon: "ti-layout-dashboard",
   },
   {
-    id: 2,
-    name: "Riya Sharma",
-    role: "Lead Cinematographer",
-    subtitle: "Frame Hunter",
-    bio: "With a background in documentary and commercial cinematography, Riya sculpts light and shadow to create unforgettable imagery. Her work has been featured at film festivals worldwide.",
-    specialties: ["Cinematography", "Lighting Design", "Drone Ops"],
-    quote: "Light is my language.",
-    gameStyle: "Cricket 26 - Cover Star",
-    gradientFrom: "#b87333",
-    gradientTo: "#ff6b35",
+    id: "personas",
+    label: "User Personas",
+    icon: "ti-users",
   },
   {
-    id: 3,
-    name: "Devansh Khanna",
-    role: "Motion Graphics Artist",
-    subtitle: "Motion Alchemist",
-    bio: "Devansh turns abstract ideas into dynamic motion. His expertise in After Effects and Blender adds the kinetic energy that makes scroll-stopping content.",
-    specialties: ["2D/3D Animation", "VFX", "Typography"],
-    quote: "Movement is emotion.",
-    gameStyle: "GTA VI - Street Artist",
-    gradientFrom: "#2a2a72",
-    gradientTo: "#009ffd",
+    id: "agents",
+    label: "AI Agents",
+    icon: "ti-cpu",
   },
   {
-    id: 4,
-    name: "Ananya Verma",
-    role: "Social Media Strategist",
-    subtitle: "Algorithm Whisperer",
-    bio: "Ananya decodes platform algorithms and audience psychology to engineer viral growth. She has grown multiple brands to 100k+ engaged followers.",
-    specialties: ["Strategy", "Community Building", "Analytics"],
-    quote: "Data + Creativity = Impact.",
-    gameStyle: "Cricket 26 - Strategist",
-    gradientFrom: "#d4a843",
-    gradientTo: "#a67c00",
+    id: "differentiators",
+    label: "Differentiators",
+    icon: "ti-star",
   },
   {
-    id: 5,
-    name: "Kabir Sinha",
-    role: "Color Grading Specialist",
-    subtitle: "Chroma Sorcerer",
-    bio: "Kabir's color grades give each project a cinematic signature. Trained under Hollywood colorists, he ensures every pixel feels intentional.",
-    specialties: ["Color Grading", "DaVinci Resolve", "Look Development"],
-    quote: "Color tells the story before a word is spoken.",
-    gameStyle: "GTA VI - Neon Expert",
-    gradientFrom: "#6a11cb",
-    gradientTo: "#2575fc",
+    id: "techstack",
+    label: "Tech Stack",
+    icon: "ti-code",
   },
   {
-    id: 6,
-    name: "Zara Mistry",
-    role: "3D & VFX Artist",
-    subtitle: "Polygon Warlock",
-    bio: "Zara builds worlds from scratch. Her 3D environments and VFX sequences add surreal, high-budget flair to brand campaigns.",
-    specialties: ["3D Modeling", "Simulation", "Compositing"],
-    quote: "Reality is just another render.",
-    gameStyle: "Cricket 26 - Stadium Builder",
-    gradientFrom: "#ff6b35",
-    gradientTo: "#f7b733",
-  },
-  {
-    id: 7,
-    name: "Rohan Nair",
-    role: "Event Production Lead",
-    subtitle: "Hype Architect",
-    bio: "Rohan orchestrates large-scale event coverage and hype cycles. From product launches to music festivals, he creates FOMO that converts.",
-    specialties: ["Live Production", "Project Management", "Teaser Campaigns"],
-    quote: "Moments matter. We capture them.",
-    gameStyle: "GTA VI - Event Kingpin",
-    gradientFrom: "#b224ef",
-    gradientTo: "#7579ff",
-  },
-  {
-    id: 8,
-    name: "Tanya Iyer",
-    role: "Copywriter / Storyteller",
-    subtitle: "Word Sniper",
-    bio: "Tanya crafts copy that cuts through the noise. Her narratives build emotional bridges between brands and audiences, driving action.",
-    specialties: ["Copywriting", "Scriptwriting", "Brand Voice"],
-    quote: "Words that linger long after the scroll.",
-    gameStyle: "Cricket 26 - Wordsmith",
-    gradientFrom: "#cb356b",
-    gradientTo: "#bd3f32",
+    id: "timeline",
+    label: "Timeline",
+    icon: "ti-calendar",
   },
 ];
 
-// ----------------------------- Custom Cursor Hook ----------------------------
-const useCustomCursor = () => {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
+const personas = [
+  {
+    name: "Priya",
+    age: 32,
+    tag: "Salaried",
+    color: "#0F6E56",
+    bg: "#E1F5EE",
+    location: "Thane, Maharashtra",
+    income: "₹35,000/month (fixed)",
+    language: "Marathi",
+    pain: "Overwhelmed by financial jargon, sold wrong products (ULIPs), misses employer benefits, can't distinguish legitimate advice from WhatsApp tips.",
+    need: "A trusted Marathi-speaking advisor for retirement planning and goal-based saving.",
+  },
+  {
+    name: "Rajesh",
+    age: 24,
+    tag: "Gig Worker",
+    color: "#185FA5",
+    bg: "#E6F1FB",
+    location: "Mumbai, Maharashtra",
+    income: "₹15,000–₹40,000/month (variable)",
+    language: "Hindi",
+    pain: "No emergency fund, no health insurance, falls prey to predatory instant loan apps. Traditional budgeting tools don't work for irregular income.",
+    need: "Gig-native cash flow management + real-time scam protection.",
+  },
+  {
+    name: "Kisan",
+    age: 45,
+    tag: "Farmer",
+    color: "#854F0B",
+    bg: "#FAEEDA",
+    location: "Rural Karnataka",
+    income: "Seasonal, weather-dependent",
+    language: "Kannada",
+    pain: "Informal loans at high interest, unable to access PM-KISAN / crop insurance due to confusing processes, exploited by middlemen.",
+    need: "Voice-first Kannada guidance on government schemes, seasonal cash flow planning.",
+  },
+  {
+    name: "Divya",
+    age: 28,
+    tag: "Accessibility",
+    color: "#993556",
+    bg: "#FBEAF0",
+    location: "Pune, Maharashtra",
+    income: "₹25,000/month",
+    language: "English/Hindi",
+    pain: "Banking apps not screen-reader friendly, relies on family for financial tasks which compromises her independence and privacy.",
+    need: "Voice-based interactions, accessible interfaces, guidance without chart dependencies.",
+  },
+  {
+    name: "Students",
+    age: "16–22",
+    tag: "Prevention",
+    color: "#534AB7",
+    bg: "#EEEDFE",
+    location: "Schools & Colleges, India",
+    income: "Pocket money / first salary",
+    language: "English / Hinglish",
+    pain: "Zero financial education in curriculum. First salary decisions compound for 40 years. Vulnerable to crypto scams, credit card traps, peer pressure spending.",
+    need: "Financial life simulation, bite-sized gamified learning, social ArthScore.",
+  },
+];
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.matchMedia('(max-width: 768px)').matches);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+const agents = [
+  {
+    name: "Orchestrator",
+    color: "#534AB7",
+    bg: "#EEEDFE",
+    icon: "ti-adjustments-horizontal",
+    role: "Master router and profiler. Detects user's language, income type, literacy level, accessibility needs, and life stage from the first message. Routes to appropriate agents and maintains context across sessions.",
+    inputs: ["User message", "Inferred profile", "Channel (WhatsApp/Voice/Web)"],
+    outputs: ["Agent selection", "Language config", "Modality config"],
+  },
+  {
+    name: "Educator",
+    color: "#0F6E56",
+    bg: "#E1F5EE",
+    icon: "ti-book",
+    role: "Delivers personalized financial lessons across 5 axes: language, literacy level, income context, life stage, and learning style. Uses farming analogies for Kisan, gig-worker examples for Rajesh. Gamified with streaks and micro-quizzes.",
+    inputs: ["User profile", "Topic requested", "Prior learning history"],
+    outputs: ["Personalized lesson", "Quiz", "Next lesson recommendation"],
+  },
+  {
+    name: "Decision Coach",
+    color: "#185FA5",
+    bg: "#E6F1FB",
+    icon: "ti-brand-speedtest",
+    role: "Intervenes at the exact moment of a financial decision. User says 'I'm thinking of taking a loan' — agent immediately provides contextual analysis, alternatives, and a clear recommendation. Not education — live guidance.",
+    inputs: ["Decision intent", "User financial profile", "Current context"],
+    outputs: ["Decision analysis", "Alternatives", "Action recommendation"],
+  },
+  {
+    name: "Fraud Sentinel",
+    color: "#993C1D",
+    bg: "#FAECE7",
+    icon: "ti-shield-check",
+    role: "Two modes: reactive (user forwards suspicious message, agent checks against RBI flagged list and calculates true APR) and proactive pre-bunking (sends inoculation stories before scams reach the user). 3× more effective than debunking after the fact.",
+    inputs: ["Suspicious message / URL", "User vulnerability profile", "RBI/SEBI database"],
+    outputs: ["Scam verdict", "True cost breakdown", "Safe alternative"],
+  },
+  {
+    name: "Variable Income OS",
+    color: "#854F0B",
+    bg: "#FAEEDA",
+    icon: "ti-arrows-exchange",
+    role: "Purpose-built for gig workers and farmers. Tracks earning events, predicts slow periods from history, triggers micro-savings after every delivery batch, aligns insurance premiums to high-earning weeks. First system designed for India's 15 crore gig workers.",
+    inputs: ["Earning event", "Income history", "Upcoming obligations"],
+    outputs: ["Save-now trigger", "Cash flow forecast", "Insurance timing"],
+  },
+  {
+    name: "Progress Tracker",
+    color: "#3B6D11",
+    bg: "#EAF3DE",
+    icon: "ti-chart-line",
+    role: "Tracks real behavioral change — not quiz scores. Did they open a PPF account after the lesson? Did they stop using the flagged app? Generates the ArthScore: a behavioral health metric. Also powers the social leaderboard for community motivation.",
+    inputs: ["Behavioral signals", "Self-reported actions", "Financial milestones"],
+    outputs: ["ArthScore", "Progress report", "Next nudge"],
+  },
+];
 
-  useEffect(() => {
-    if (isMobile) return;
-    const cursor = cursorRef.current;
-    const ring = ringRef.current;
-    if (!cursor || !ring) return;
+const differentiators = [
+  {
+    number: "01",
+    title: "Decision-moment intervention",
+    tag: "Core",
+    color: "#534AB7",
+    bg: "#EEEDFE",
+    description:
+      "Most platforms teach. ArthSaathi intercepts. When Rajesh is about to take a predatory loan, ArthSaathi responds within seconds with the true APR, a safe alternative, and a one-tap action. This is the gap no competitor has filled.",
+    impact: "Prevents bad decisions before they happen",
+  },
+  {
+    number: "02",
+    title: "NGO multiplier effect",
+    tag: "Scale",
+    color: "#0F6E56",
+    bg: "#E1F5EE",
+    description:
+      "One NGO educator + ArthSaathi = 200 users reached at zero marginal cost. The NGO portal generates customized lessons in Kannada/Marathi in 2 clicks, runs WhatsApp broadcasts with interactive quizzes, and tracks which members improved their ArthScore over 30 days.",
+    impact: "1 educator → 200 users → viral community spread",
+  },
+  {
+    number: "03",
+    title: "Scam inoculation engine",
+    tag: "Novel",
+    color: "#993C1D",
+    bg: "#FAECE7",
+    description:
+      "Pre-bunking: sends personalized scam vulnerability stories BEFORE scams arrive. Research shows pre-bunking is 3× more effective than debunking. Rajesh gets a story about a delivery worker who almost fell for an instant loan app — before the loan app WhatsApp message arrives.",
+    impact: "Behavioral science-backed, proactive protection",
+  },
+  {
+    number: "04",
+    title: "Irregular income OS",
+    tag: "Novel",
+    color: "#185FA5",
+    bg: "#E6F1FB",
+    description:
+      "Every financial tool assumes monthly salary. ArthSaathi is the first system designed for India's 15 crore gig workers. Micro-savings triggered after every earning event. Emergency fund built in ₹200–₹500 increments. Insurance timed to high-earning weeks.",
+    impact: "Addresses a completely underserved market category",
+  },
+  {
+    number: "05",
+    title: "ArthScore — behavioral metric",
+    tag: "Measurement",
+    color: "#3B6D11",
+    bg: "#EAF3DE",
+    description:
+      "Judges will ask: how do you know it works? ArthScore measures real behavioral change — PPF accounts opened, flagged apps stopped, emergency fund built. Not quiz completion rates. Priya's ArthScore goes 43→67 over 3 months. That's the story Nomura wants.",
+    impact: "Answers the hardest judge question: does it work?",
+  },
+  {
+    number: "06",
+    title: "Financial life simulator",
+    tag: "Students",
+    color: "#993556",
+    bg: "#FBEAF0",
+    description:
+      "College students get a virtual financial life: starting salary ₹25k, rent, EMI trap, a crypto 'friend tip', a job loss in month 4. They make decisions in a 10-minute sandbox and see the 10-year projection of those exact choices. Designed to be shared — viral by design.",
+    impact: "Viral college distribution + immunity before crisis",
+  },
+  {
+    number: "07",
+    title: "Life event trigger engine",
+    tag: "Engagement",
+    color: "#854F0B",
+    bg: "#FAEEDA",
+    description:
+      "Detects life events in conversation and proactively pushes guidance. 'Beti ka admission hua' → education loan comparison + Sukanya Samriddhi guide. 'Fasal barbaad ho gayi' → PM Fasal Bima claim process. 'Pehli salary aayi' → 50/30/20 rule + first SIP setup in 3 taps.",
+    impact: "Turns ArthSaathi into a life companion, not a tool",
+  },
+  {
+    number: "08",
+    title: "Trusted messenger network",
+    tag: "Last Mile",
+    color: "#534AB7",
+    bg: "#EEEDFE",
+    description:
+      "Kisan won't trust a bot. But he trusts his Kisan Mitra. SHG leaders, ASHA workers, and Kisan Mitra agents use ArthSaathi as their back-end intelligence. The AI never appears — only the trusted human does. This is how you reach the last mile.",
+    impact: "Solves the trust barrier for rural + low-literacy users",
+  },
+];
 
-    let mouseX = 0, mouseY = 0;
-    let ringX = 0, ringY = 0;
+const techStack = [
+  {
+    category: "Frontend",
+    color: "#185FA5",
+    bg: "#E6F1FB",
+    icon: "ti-device-laptop",
+    items: [
+      { name: "React", version: "18.2.0", use: "Web app UI", free: true },
+      { name: "Vite", version: "5.2.0", use: "Build tool", free: true },
+      { name: "Tailwind CSS", version: "3.4.1", use: "Styling", free: true },
+      { name: "shadcn/ui", version: "0.8.0", use: "Component library", free: true },
+      { name: "React Router", version: "6.22.0", use: "Routing", free: true },
+    ],
+  },
+  {
+    category: "Backend",
+    color: "#0F6E56",
+    bg: "#E1F5EE",
+    icon: "ti-server",
+    items: [
+      { name: "Node.js", version: "20.11.0 LTS", use: "Runtime", free: true },
+      { name: "Express", version: "4.18.3", use: "API server", free: true },
+      { name: "MongoDB", version: "7.0.0", use: "Primary database", free: true },
+      { name: "Mongoose", version: "8.2.0", use: "ODM", free: true },
+      { name: "Redis", version: "7.2.0", use: "Session + cache", free: true },
+    ],
+  },
+  {
+    category: "AI / Agents",
+    color: "#534AB7",
+    bg: "#EEEDFE",
+    icon: "ti-brain",
+    items: [
+      { name: "LangGraph", version: "0.1.19", use: "Multi-agent orchestration", free: true },
+      { name: "GPT-4o", version: "2024-05-13", use: "Decision coach + educator", free: false, note: "Free tier + credits" },
+      { name: "Claude Sonnet", version: "claude-sonnet-4-20250514", use: "Safety + evaluation layer", free: false, note: "Free tier" },
+      { name: "LangChain", version: "0.1.20", use: "Agent tooling + memory", free: true },
+      { name: "Chroma DB", version: "0.4.24", use: "Vector store for RAG", free: true },
+    ],
+  },
+  {
+    category: "Voice & NLP",
+    color: "#993C1D",
+    bg: "#FAECE7",
+    icon: "ti-microphone",
+    items: [
+      { name: "Whisper API", version: "openai-whisper-1", use: "Speech to text (STT)", free: false, note: "Free tier" },
+      { name: "ElevenLabs", version: "v2 API", use: "Text to speech (TTS)", free: false, note: "Free tier" },
+      { name: "IndicTrans2", version: "1.0.0", use: "Hindi/Kannada/Marathi translation", free: true },
+      { name: "IndicNLP", version: "0.92", use: "Indian language processing", free: true },
+    ],
+  },
+  {
+    category: "Integrations",
+    color: "#3B6D11",
+    bg: "#EAF3DE",
+    icon: "ti-plug",
+    items: [
+      { name: "WhatsApp Business API", version: "Meta Cloud v18.0", use: "Primary channel", free: false, note: "Free tier" },
+      { name: "Twilio", version: "4.19.0", use: "SMS fallback / IVR", free: false, note: "Free credits" },
+      { name: "DigiLocker API", version: "v2.0", use: "Document verification", free: true },
+      { name: "RBI Open API", version: "v1.0", use: "Flagged NBFC / scam list", free: true },
+    ],
+  },
+  {
+    category: "Infrastructure",
+    color: "#854F0B",
+    bg: "#FAEEDA",
+    icon: "ti-cloud",
+    items: [
+      { name: "Docker", version: "24.0.7", use: "Containerization", free: true },
+      { name: "Python", version: "3.11.7", use: "ML scripts + data processing", free: true },
+      { name: "FastAPI", version: "0.110.0", use: "ML microservices", free: true },
+      { name: "Nginx", version: "1.25.3", use: "Reverse proxy", free: true },
+    ],
+  },
+];
 
-    const onMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      cursor.style.left = `${mouseX}px`;
-      cursor.style.top = `${mouseY}px`;
-    };
+const timeline = [
+  {
+    date: "June 4",
+    label: "Launch",
+    status: "done",
+    detail: "Competition launched. Register at nomura.com/india/careers",
+  },
+  {
+    date: "June 11",
+    label: "Executive Summary due",
+    status: "urgent",
+    detail: "5:00 PM deadline. 2 pages max. Send to kakushin@nomura.com. Include full tech stack with exact version numbers.",
+  },
+  {
+    date: "June 19",
+    label: "Shortlist announced",
+    status: "upcoming",
+    detail: "Teams advancing to Round 2 will be notified.",
+  },
+  {
+    date: "June 22–24",
+    label: "Round 2 Presentations",
+    status: "upcoming",
+    detail: "15 min presentation + 5 min Q&A. Need UI mockups, data models, architecture diagrams.",
+  },
+  {
+    date: "June 25",
+    label: "Finalists announced",
+    status: "upcoming",
+    detail: "Teams selected for Grand Finale notified.",
+  },
+  {
+    date: "July 3",
+    label: "Grand Finale — Day 1",
+    status: "upcoming",
+    detail: "Full day coding at Nomura Services India office.",
+  },
+  {
+    date: "July 4",
+    label: "Grand Finale — Day 2",
+    status: "upcoming",
+    detail: "Present final solution to Nomura's senior technology professionals. Felicitation ceremony.",
+  },
+];
 
-    const animateRing = () => {
-      ringX += (mouseX - ringX) * 0.12;
-      ringY += (mouseY - ringY) * 0.12;
-      if (ring) {
-        ring.style.left = `${ringX}px`;
-        ring.style.top = `${ringY}px`;
-      }
-      requestAnimationFrame(animateRing);
-    };
+export default function ArthSaathiDoc() {
+  const [active, setActive] = useState("overview");
+  const [expandedAgent, setExpandedAgent] = useState(null);
+  const [expandedDiff, setExpandedDiff] = useState(null);
 
-    const animateRingId = requestAnimationFrame(animateRing);
-    window.addEventListener('mousemove', onMouseMove);
-
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      cancelAnimationFrame(animateRingId);
-    };
-  }, [isMobile]);
-
-  const onElementHover = useCallback((isHovering: boolean) => {
-    if (isMobile) return;
-    const cursor = cursorRef.current;
-    const ring = ringRef.current;
-    if (cursor && ring) {
-      if (isHovering) {
-        cursor.style.width = '18px';
-        cursor.style.height = '18px';
-        ring.style.width = '58px';
-        ring.style.height = '58px';
-      } else {
-        cursor.style.width = '10px';
-        cursor.style.height = '10px';
-        ring.style.width = '38px';
-        ring.style.height = '38px';
-      }
-    }
-  }, [isMobile]);
-
-  return { cursorRef, ringRef, onElementHover, isMobile };
-};
-
-// ----------------------------- Counter Animation Hook ------------------------
-const useCounter = (target: number, suffix: string, isDecimal: boolean = false) => {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const hasAnimated = useRef(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          let start = 0;
-          const duration = 1600;
-          const step = (timestamp: number) => {
-            if (!start) start = timestamp;
-            const progress = Math.min((timestamp - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            const current = eased * target;
-            if (target >= 1000) {
-              setCount(Math.floor(current));
-            } else {
-              setCount(isDecimal ? parseFloat(current.toFixed(1)) : Math.floor(current));
-            }
-            if (progress < 1) requestAnimationFrame(step);
-          };
-          requestAnimationFrame(step);
-        }
-      },
-      { threshold: 0.3 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [target, isDecimal]);
-
-  return { ref, displayValue: count, suffix };
-};
-
-// ----------------------------- Subcomponents ---------------------------------
-const SectionLabel: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-  <div className={`flex items-center gap-3 font-mono text-[9px] tracking-[5px] uppercase text-[#d4a843] ${className || ''}`}>
-    <span className="block w-7 h-px bg-[#d4a843]" />
-    {children}
-  </div>
-);
-
-const RevealOnScroll: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-40px 0px -40px 0px" });
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 36 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 36 }}
-      transition={{ duration: 0.8, delay: delay * 0.12, ease: "easeOut" }}
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-// Stats Grid Item
-const StatBox: React.FC<StatItem> = ({ target, suffix, label, isDecimal = false }) => {
-  const { ref, displayValue, suffix: displayedSuffix } = useCounter(target, suffix, isDecimal);
-  return (
-    <div ref={ref} className="stat-box group bg-black p-8 relative overflow-hidden transition-all duration-300 hover:bg-[rgba(212,168,67,0.04)] cursor-default">
-      <div className="absolute inset-0 bg-gradient-to-br from-[rgba(212,168,67,0.05)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      <div className="font-bebas text-5xl bg-gradient-to-r from-[#d4a843] to-[#e8822a] bg-clip-text text-transparent mb-1.5">
-        {displayValue}{displayedSuffix}
-      </div>
-      <div className="font-mono text-[8px] tracking-[2px] uppercase text-[#777] leading-relaxed">{label}</div>
-    </div>
-  );
-};
-
-// Service Card
-const ServiceCard: React.FC<{ num: string; name: string; subtitle: string; desc: string; icon: React.ReactNode; delay?: number }> = ({ num, name, subtitle, desc, icon, delay = 0 }) => (
-  <RevealOnScroll delay={delay}>
-    <div className="service-card group bg-[#111] p-12 relative overflow-hidden transition-all duration-400 cursor-default hover:bg-[rgba(212,168,67,0.04)]">
-      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#d4a843] to-[#ff6b35] scale-x-0 group-hover:scale-x-100 transition-transform duration-400 origin-left" />
-      <div className="absolute top-5 right-5 font-bebas text-7xl text-transparent [-webkit-text-stroke:1px_rgba(212,168,67,0.1)] group-hover:[-webkit-text-stroke-color:rgba(212,168,67,0.22)] transition-all">{num}</div>
-      <div className="w-11 h-11 mb-6">{icon}</div>
-      <div className="font-bebas text-2xl tracking-[2px] mb-1">{name}</div>
-      <div className="font-mono text-[8px] tracking-[3px] uppercase text-[#d4a843] mb-4">{subtitle}</div>
-      <p className="text-xs font-light text-[#888] leading-relaxed">{desc}</p>
-    </div>
-  </RevealOnScroll>
-);
-
-// Software Card
-const SoftwareCard: React.FC<{ name: string; desc: string; bgColor: string; icon: React.ReactNode; delay?: number }> = ({ name, desc, bgColor, icon, delay = 0 }) => (
-  <RevealOnScroll delay={delay}>
-    <div className="sw-card group bg-black text-center p-10 relative overflow-hidden transition-all duration-300 cursor-default hover:bg-[rgba(212,168,67,0.04)] flex flex-col items-center gap-4">
-      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#d4a843] to-[#ff6b35] scale-x-0 group-hover:scale-x-100 transition-transform duration-400 origin-center" />
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-0.5`} style={{ backgroundColor: bgColor }}>
-        {icon}
-      </div>
-      <div className="font-bebas text-base tracking-[2px] text-white">{name}</div>
-      <div className="font-mono text-[8px] tracking-[2px] uppercase text-[#777] leading-relaxed">{desc}</div>
-    </div>
-  </RevealOnScroll>
-);
-
-// Game-Style Team Member Card with Modal
-const TeamMemberCard: React.FC<{ member: TeamMember; onClick: () => void; delay?: number }> = ({ member, onClick, delay = 0 }) => {
-  return (
-    <RevealOnScroll delay={delay}>
-      <motion.div
-        whileHover={{ y: -8, scale: 1.02 }}
-        transition={{ type: "spring", stiffness: 300 }}
-        onClick={onClick}
-        className="team-card group relative bg-gradient-to-br from-[#111] to-black rounded-xl overflow-hidden cursor-pointer border border-[rgba(212,168,67,0.15)] hover:border-[rgba(212,168,67,0.5)] transition-all duration-300"
-      >
-        {/* Game-style portrait placeholder with glitch effect */}
-        <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-br from-gray-900 to-black">
-          <div
-            className="absolute inset-0 opacity-30 mix-blend-overlay"
-            style={{
-              backgroundImage: `repeating-linear-gradient(45deg, ${member.gradientFrom}20 0px, ${member.gradientFrom}20 2px, transparent 2px, transparent 8px)`,
-            }}
-          />
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-            <div className="w-28 h-28 md:w-32 md:h-32 rounded-full border-2 border-[#d4a843] shadow-[0_0_20px_rgba(212,168,67,0.3)] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-              <span className="font-bebas text-5xl text-[#d4a843]">{member.id.toString().padStart(2, '0')}</span>
-            </div>
-            <div className="mt-4 text-center">
-              <div className="font-mono text-[8px] tracking-[4px] uppercase text-[#d4a843]">{member.gameStyle.split(' - ')[0]}</div>
-              <div className="text-xs text-[#777] mt-1">{member.gameStyle.split(' - ')[1] || "Character"}</div>
-            </div>
+    <div className="font-serif bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 px-7 pt-5 pb-0">
+        <div className="mb-4">
+          <div className="flex items-baseline gap-2.5">
+            <span className="font-serif text-2xl font-bold text-gray-900 tracking-tight">
+              ArthSaathi
+            </span>
+            <span className="text-xs text-gray-500 font-sans bg-gray-100 border border-gray-200 rounded px-2 py-0.5">
+              Nomura KakushIN 10.0 — Team Brief
+            </span>
           </div>
-          {/* Scanline overlay */}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#d4a843] to-transparent opacity-60" />
+          <p className="font-sans text-xs text-gray-500 mt-1">
+            Financial Literacy &amp; Agentic AI · 2027 Batch · Deadline June 11, 2026
+          </p>
         </div>
-
-        {/* Card info */}
-        <div className="p-5 text-center">
-          <h3 className="font-bebas text-xl tracking-[1px] text-white">{member.name}</h3>
-          <p className="font-mono text-[9px] tracking-[2px] text-[#d4a843] mt-1">{member.role}</p>
-          <p className="text-[10px] text-[#999] italic mt-2">"{member.subtitle}"</p>
-          <div className="mt-3 flex justify-center gap-2">
-            <span className="inline-block px-2 py-0.5 text-[7px] font-mono tracking-wider uppercase bg-[rgba(212,168,67,0.1)] border border-[rgba(212,168,67,0.2)] rounded text-[#d4a843]">View Dossier</span>
-          </div>
-        </div>
-      </motion.div>
-    </RevealOnScroll>
-  );
-};
-
-// Modal Component for Team Member Details
-const TeamModal: React.FC<{ member: TeamMember | null; onClose: () => void }> = ({ member, onClose }) => {
-  useEffect(() => {
-    if (member) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-    return () => { document.body.style.overflow = 'auto'; };
-  }, [member]);
-
-  if (!member) return null;
-
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-lg"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ scale: 0.9, y: 20 }}
-          animate={{ scale: 1, y: 0 }}
-          exit={{ scale: 0.9, y: 20 }}
-          className="relative max-w-2xl w-full bg-gradient-to-br from-[#111] to-black rounded-2xl border border-[rgba(212,168,67,0.3)] shadow-2xl overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Close button */}
-          <button onClick={onClose} className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-black/50 border border-[rgba(212,168,67,0.3)] text-[#d4a843] hover:bg-[#d4a843] hover:text-black transition-all">✕</button>
-
-          {/* Hero section with game style */}
-          <div className="relative h-48 bg-gradient-to-r from-[#1a1a1a] to-black overflow-hidden">
-            <div
-              className="absolute inset-0 opacity-20"
-              style={{
-                backgroundImage: `radial-gradient(circle at 20% 40%, ${member.gradientFrom} 0%, transparent 60%)`,
-              }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-28 h-28 rounded-full border-4 border-[#d4a843] shadow-[0_0_30px_rgba(212,168,67,0.5)] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-                <span className="font-bebas text-6xl text-[#d4a843]">{member.id.toString().padStart(2, '0')}</span>
-              </div>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black to-transparent" />
-          </div>
-
-          {/* Content */}
-          <div className="p-6 md:p-8">
-            <div className="text-center mb-6">
-              <h2 className="font-bebas text-4xl md:text-5xl text-white">{member.name}</h2>
-              <p className="font-mono text-xs tracking-[3px] text-[#d4a843] mt-1">{member.role}</p>
-              <p className="text-sm text-[#999] italic mt-2">“{member.subtitle}”</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-bebas text-xl text-[#d4a843] mb-2">Bio</h3>
-                <p className="text-sm text-[#ccc] leading-relaxed">{member.bio}</p>
-                <div className="mt-4">
-                  <h3 className="font-bebas text-xl text-[#d4a843] mb-2">Specialties</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {member.specialties.map((spec) => (
-                      <span key={spec} className="px-3 py-1 text-[10px] font-mono uppercase bg-[rgba(212,168,67,0.1)] border border-[rgba(212,168,67,0.2)] rounded-full text-[#d4a843]">{spec}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h3 className="font-bebas text-xl text-[#d4a843] mb-2">Game Style</h3>
-                <div className="bg-black/50 p-3 rounded-lg border border-[rgba(212,168,67,0.2)]">
-                  <p className="text-sm font-mono text-[#d4a843]">{member.gameStyle}</p>
-                </div>
-                <div className="mt-4">
-                  <h3 className="font-bebas text-xl text-[#d4a843] mb-2">Signature Quote</h3>
-                  <p className="text-base italic text-white border-l-2 border-[#d4a843] pl-4">“{member.quote}”</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-4 border-t border-[rgba(212,168,67,0.2)] text-center">
-              <button onClick={onClose} className="px-6 py-2 bg-gradient-to-r from-[#d4a843] to-[#e8822a] text-black font-mono text-[10px] tracking-[3px] uppercase rounded hover:shadow-lg transition-all">Close Profile</button>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  );
-};
-
-// Cinematic Card
-const CinematicCard: React.FC<{ label: string; visualClass: string }> = ({ label, visualClass }) => (
-  <div className="cine-card w-[320px] h-[200px] relative overflow-hidden flex-shrink-0 bg-[#1a1a1a]">
-    <div className={`absolute inset-0 overflow-hidden ${visualClass}`} />
-    <div className="absolute inset-0 flex items-end p-5">
-      <span className="relative z-10 font-bebas text-sm tracking-[3px] text-[rgba(212,168,67,0.7)]">{label}</span>
-    </div>
-  </div>
-);
-
-// ----------------------------- Main App Component ---------------------------
-const App: React.FC = () => {
-  const { cursorRef, ringRef, onElementHover, isMobile } = useCustomCursor();
-  const [scrolled, setScrolled] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 60);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const elements = document.querySelectorAll('a, button, .service-card, .sw-card, .stat-box, .client-type, .team-card, .process-step, .tag');
-    const handleMouseEnter = () => onElementHover(true);
-    const handleMouseLeave = () => onElementHover(false);
-    elements.forEach(el => {
-      el.addEventListener('mouseenter', handleMouseEnter);
-      el.addEventListener('mouseleave', handleMouseLeave);
-    });
-    return () => {
-      elements.forEach(el => {
-        el.removeEventListener('mouseenter', handleMouseEnter);
-        el.removeEventListener('mouseleave', handleMouseLeave);
-      });
-    };
-  }, [onElementHover]);
-
-  // Service Icons
-  const serviceIcons = {
-    cinema: <svg viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="10" stroke="#d4a843" strokeWidth="1.5" /><path d="M22 4v5M22 35v5M4 22h5M35 22h5" stroke="#d4a843" strokeWidth="1.5" strokeLinecap="round" /><path d="M18 22l6-4v8l-6-4z" fill="#d4a843" /></svg>,
-    hype: <svg viewBox="0 0 44 44" fill="none"><path d="M6 34l8-12 8 6 8-16 8 10" stroke="#d4a843" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="38" cy="10" r="4" stroke="#e8822a" strokeWidth="1.5" /><path d="M6 38h32" stroke="#555" strokeWidth="1" strokeLinecap="round" /></svg>,
-    algorithm: <svg viewBox="0 0 44 44" fill="none"><rect x="6" y="14" width="32" height="20" rx="2" stroke="#d4a843" strokeWidth="1.5" /><path d="M14 14v-4a8 8 0 0116 0v4" stroke="#d4a843" strokeWidth="1.5" strokeLinecap="round" /><circle cx="22" cy="24" r="3" fill="#e8822a" /><path d="M22 27v4" stroke="#e8822a" strokeWidth="1.5" strokeLinecap="round" /></svg>,
-    viral: <svg viewBox="0 0 44 44" fill="none"><path d="M10 34V18l12-8 12 8v16" stroke="#d4a843" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><rect x="18" y="26" width="8" height="8" stroke="#e8822a" strokeWidth="1.5" /><path d="M22 10v4" stroke="#d4a843" strokeWidth="1.5" strokeLinecap="round" /></svg>,
-    visibility: <svg viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="15" stroke="#d4a843" strokeWidth="1.5" /><path d="M22 7v4M22 33v4M7 22h4M33 22h4" stroke="#d4a843" strokeWidth="1" opacity="0.4" strokeLinecap="round" /><circle cx="22" cy="22" r="6" stroke="#e8822a" strokeWidth="1.5" /></svg>,
-    event: <svg viewBox="0 0 44 44" fill="none"><rect x="6" y="6" width="14" height="14" rx="1" stroke="#d4a843" strokeWidth="1.5" /><rect x="24" y="6" width="14" height="14" rx="1" stroke="#d4a843" strokeWidth="1.5" /><rect x="6" y="24" width="14" height="14" rx="1" stroke="#d4a843" strokeWidth="1.5" /><rect x="24" y="24" width="14" height="14" rx="1" stroke="#e8822a" strokeWidth="1.5" /></svg>,
-  };
-
-  // Software Icons
-  const softwareIcons = {
-    ps: <span className="text-[#31A8FF] font-black text-xl">Ps</span>,
-    ai: <span className="text-[#FF9A00] font-black text-xl">Ai</span>,
-    pr: <span className="text-[#9999FF] font-black text-xl">Pr</span>,
-    lr: <span className="text-[#31A8FF] font-black text-xl">Lr</span>,
-    ae: <span className="text-[#9999FF] font-black text-xl">Ae</span>,
-    blender: <svg viewBox="0 0 36 36" fill="none" className="w-8 h-8"><circle cx="22" cy="18" r="8" stroke="#EA7600" strokeWidth="2" /><circle cx="22" cy="18" r="3" fill="#EA7600" /><path d="M6 28l8-10" stroke="#EA7600" strokeWidth="2" strokeLinecap="round" /><circle cx="13" cy="12" r="4" stroke="#EA7600" strokeWidth="1.5" /></svg>,
-    davinci: <svg viewBox="0 0 36 36" fill="none" className="w-8 h-8"><circle cx="18" cy="18" r="14" stroke="#E8B94F" strokeWidth="1.5" /><circle cx="18" cy="18" r="5" fill="#E8B94F" opacity="0.5" /><path d="M18 4v28M4 18h28" stroke="#E8B94F" strokeWidth="1" opacity="0.3" /></svg>,
-    canva: <svg viewBox="0 0 36 36" fill="none" className="w-8 h-8"><circle cx="18" cy="18" r="13" stroke="#00C4CC" strokeWidth="2" /><path d="M12 18a6 6 0 0110.4-6M24 18a6 6 0 01-10.4 6" stroke="#00C4CC" strokeWidth="2" strokeLinecap="round" /></svg>,
-  };
-
-  return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,600;1,9..40,300&family=Space+Mono:wght@400;700&display=swap');
-        
-        :root { --black: #050505; --white: #f5f0e8; --gold: #d4a843; --amber: #e8822a; --ember: #ff6b35; --dim: #111111; --dim2: #1a1a1a; --muted: #555; --text-dim: #777; }
-        
-        body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; overflow-x: hidden; cursor: none; margin: 0; }
-        @media (max-width: 768px) { body { cursor: auto; } }
-        
-        /* Noise overlay */
-        body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); background-size: 200px; pointer-events: none; z-index: 1000; opacity: 0.45; }
-        
-        /* Hero specific animations */
-        .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(212,168,67,0.07) 0%, transparent 55%), radial-gradient(ellipse 50% 80% at 20% 90%, rgba(232,130,42,0.06) 0%, transparent 55%), radial-gradient(ellipse 60% 40% at 80% 10%, rgba(192,57,43,0.04) 0%, transparent 50%); animation: bgPulse 8s ease-in-out infinite; }
-        @keyframes bgPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        
-        .lens-flare { position: absolute; width: 2px; height: 2px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 60px 40px rgba(212,168,67,0.06), 0 0 120px 80px rgba(212,168,67,0.03); top: 30%; left: 65%; animation: flareFloat 10s ease-in-out infinite; pointer-events: none; }
-        @keyframes flareFloat { 0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; } 33% { transform: translate(-30px, 20px) scale(1.3); opacity: 1; } 66% { transform: translate(20px, -15px) scale(0.8); opacity: 0.4; } }
-        
-        .hero-scanlines { position: absolute; inset: 0; z-index: 1; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px); opacity: 0.3; pointer-events: none; }
-        
-        .hero-lines::before { content: ''; position: absolute; top: -20%; right: -3%; width: 1px; height: 140%; background: linear-gradient(to bottom, transparent, rgba(212,168,67,0.25), transparent); transform: rotate(10deg); animation: linePulse 5s ease-in-out infinite; }
-        .hero-lines::after { content: ''; position: absolute; top: -20%; right: 18%; width: 1px; height: 140%; background: linear-gradient(to bottom, transparent, rgba(212,168,67,0.1), transparent); transform: rotate(10deg); animation: linePulse 5s ease-in-out infinite 2s; }
-        @keyframes linePulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
-        
-        .orbit { position: absolute; border-radius: 50%; pointer-events: none; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 1px solid rgba(212,168,67,0.05); animation: orbitSpin 30s linear infinite; }
-        @keyframes orbitSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-        
-        .film-strip { position: absolute; top: 0; left: 0; bottom: 0; width: 40px; border-right: 1px solid rgba(212,168,67,0.08); background: repeating-linear-gradient(to bottom, rgba(212,168,67,0.05) 0, rgba(212,168,67,0.05) 12px, transparent 12px, transparent 28px); z-index: 2; pointer-events: none; }
-        .film-strip-right { left: auto; right: 0; border-right: none; border-left: 1px solid rgba(212,168,67,0.08); }
-        
-        /* Ticker */
-        .ticker-track { display: flex; animation: ticker 30s linear infinite; width: max-content; }
-        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        
-        /* Cinematic Strip */
-        .cine-track { display: flex; gap: 3px; animation: cineSlide 30s linear infinite; width: max-content; flex-shrink: 0; }
-        @keyframes cineSlide { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .cine-strip:hover .cine-track { animation-play-state: paused; }
-        .cine-strip::before, .cine-strip::after { content: ''; position: absolute; top: 0; bottom: 0; width: 120px; z-index: 3; pointer-events: none; }
-        .cine-strip::before { left: 0; background: linear-gradient(to right, var(--dim), transparent); }
-        .cine-strip::after { right: 0; background: linear-gradient(to left, var(--dim), transparent); }
-        
-        /* Cinematic Visual Classes */
-        .cv1 { background: radial-gradient(circle at 50% 50%, #1a0a00, #050505); }
-        .cv1::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(212,168,67,0.4); box-shadow: 0 0 0 10px rgba(212,168,67,0.05), 0 0 0 20px rgba(212,168,67,0.03), 0 0 60px rgba(212,168,67,0.08) inset; }
-        .cv1::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border-radius: 50%; background: radial-gradient(circle, rgba(212,168,67,0.15), transparent); box-shadow: 0 0 30px rgba(212,168,67,0.2); }
-        .cv2 { background: linear-gradient(to top, #0a0500, #050505); }
-        .cv2::before { content: ''; position: absolute; top: -20%; left: 30%; width: 2px; height: 80%; transform: rotate(-15deg); background: linear-gradient(to bottom, rgba(212,168,67,0.4), transparent); box-shadow: 0 0 20px rgba(212,168,67,0.3), -40px 0 2px 0 rgba(232,130,42,0.3), 40px 0 2px 0 rgba(255,107,53,0.25); }
-        .cv2::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40%; background: radial-gradient(ellipse at center bottom, rgba(212,168,67,0.08), transparent); }
-        .cv3 { background: #050505; }
-        .cv3::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; border-radius: 50%; border: 3px solid rgba(212,168,67,0.25); background: repeating-conic-gradient(rgba(212,168,67,0.03) 0deg 30deg, transparent 30deg 60deg); }
-        .cv3::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; border-radius: 50%; background: rgba(212,168,67,0.12); border: 1px solid rgba(212,168,67,0.3); }
-        .cv4 { background: #050505; background-image: radial-gradient(circle 20px at 30% 40%, rgba(212,168,67,0.15), transparent), radial-gradient(circle 35px at 70% 60%, rgba(232,130,42,0.1), transparent), radial-gradient(circle 15px at 50% 20%, rgba(212,168,67,0.08), transparent), radial-gradient(circle 25px at 20% 70%, rgba(255,107,53,0.08), transparent), radial-gradient(circle 40px at 85% 25%, rgba(212,168,67,0.06), transparent); }
-        .cv5 { background: linear-gradient(135deg, #1a0a00 0%, #050505 40%, #00051a 100%); }
-        .cv5::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(212,168,67,0.015) 20px, rgba(212,168,67,0.015) 40px); }
-        .cv5::after { content: ''; position: absolute; top: 20%; left: 10%; right: 10%; bottom: 20%; border: 1px solid rgba(212,168,67,0.15); box-shadow: 0 0 40px rgba(212,168,67,0.05) inset; }
-        .cv6 { background: #050505; background-image: repeating-linear-gradient(85deg, transparent, transparent 3px, rgba(212,168,67,0.03) 3px, rgba(212,168,67,0.03) 6px); }
-        .cv6::before { content: ''; position: absolute; left: 0; right: 0; top: 40%; height: 2px; background: linear-gradient(90deg, transparent, rgba(212,168,67,0.6), rgba(232,130,42,0.4), transparent); box-shadow: 0 0 20px rgba(212,168,67,0.3); }
-        
-        /* Scroll hint animation */
-        .scroll-line { width: 1px; height: 50px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollLine 2s ease-in-out infinite; }
-        @keyframes scrollLine { 0%, 100% { transform: scaleY(1); opacity: .6; } 50% { transform: scaleY(1.3); opacity: 1; } }
-        
-        .font-bebas { font-family: 'Bebas Neue', sans-serif; }
-        .font-mono-custom { font-family: 'Space Mono', monospace; }
-        .text-stroke-gold { color: transparent; -webkit-text-stroke: 1px rgba(212,168,67,0.25); }
-        .text-stroke-gold-light { color: transparent; -webkit-text-stroke: 1px rgba(212,168,67,0.2); }
-      `}</style>
-
-      {/* Custom Cursor Elements */}
-      {!isMobile && (
-        <>
-          <div ref={cursorRef} className="fixed w-[10px] h-[10px] bg-[#d4a843] rounded-full pointer-events-none z-[9999] transform -translate-x-1/2 -translate-y-1/2 mix-blend-difference transition-all duration-200" />
-          <div ref={ringRef} className="fixed w-[38px] h-[38px] border border-[rgba(212,168,67,0.4)] rounded-full pointer-events-none z-[9998] transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300" />
-        </>
-      )}
-
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-[900] px-6 md:px-12 py-5 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-[rgba(5,5,5,0.97)] backdrop-blur-md' : 'bg-gradient-to-b from-[rgba(5,5,5,0.97)] to-transparent'}`}>
-     <img 
-  src="https://res.cloudinary.com/dvcbhvxd6/image/upload/v1780201405/6116066441082638571_121_ockknf.jpg" 
-  alt="1CARUS Logo"
-  className="h-44 w-auto"   // was h-8, now h-12 (48px)
-/>
-        <ul className="hidden md:flex gap-9">
-          <li><a href="#manifesto" className="font-mono text-[9px] tracking-[3px] uppercase text-[#777] hover:text-[#d4a843] transition-colors">About</a></li>
-          <li><a href="#services" className="font-mono text-[9px] tracking-[3px] uppercase text-[#777] hover:text-[#d4a843] transition-colors">Services</a></li>
-          <li><a href="#software" className="font-mono text-[9px] tracking-[3px] uppercase text-[#777] hover:text-[#d4a843] transition-colors">Arsenal</a></li>
-          <li><a href="#process" className="font-mono text-[9px] tracking-[3px] uppercase text-[#777] hover:text-[#d4a843] transition-colors">Process</a></li>
-          <li><a href="#team" className="font-mono text-[9px] tracking-[3px] uppercase text-[#777] hover:text-[#d4a843] transition-colors">Team</a></li>
-        </ul>
-        <a href="#contact" className="font-mono text-[9px] tracking-[3px] uppercase text-black bg-gradient-to-r from-[#d4a843] to-[#e8822a] py-2.5 px-5 transition-transform hover:scale-105 hover:shadow-[0_6px_30px_rgba(212,168,67,0.4)]">Let's Create</a>
-      </nav>
-
-      {/* Hero Section */}
-      <section id="hero" className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
-        <div className="film-strip" />
-        <div className="film-strip film-strip-right" />
-        <div className="hero-bg" />
-        <div className="hero-scanlines" />
-        <div className="hero-lines absolute inset-0 overflow-hidden z-1" />
-        <div className="lens-flare" />
-        <div className="orbit" style={{ width: 500, height: 500, animationDuration: '28s' }} />
-        <div className="orbit" style={{ width: 800, height: 800, animationDuration: '46s', animationDirection: 'reverse', borderColor: 'rgba(232,130,42,0.04)' }} />
-        <div className="orbit" style={{ width: 1100, height: 1100, animationDuration: '70s', borderColor: 'rgba(212,168,67,0.02)' }} />
-
-        <div className="relative z-10 text-center px-6 max-w-[1100px]">
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="font-mono text-[10px] tracking-[6px] uppercase text-[#d4a843] mb-7">Science in our roots · Cinema in our souls · Impact in our mission</motion.p>
-          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="font-bebas text-[clamp(68px,13vw,170px)] leading-[0.88] tracking-[-1px] mb-1">
-            <span className="block text-stroke-gold text-[clamp(58px,10vw,135px)]">We Turn</span>
-            <span className="block bg-gradient-to-r from-[#d4a843] via-[#e8822a] to-[#ff6b35] bg-clip-text text-transparent">Attention</span>
-          </motion.h1>
-          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }} className="font-bebas text-[clamp(68px,13vw,170px)] leading-[0.88]">
-            <span className="block text-stroke-gold-light text-[clamp(58px,10vw,135px)]">Into</span>
-            <span className="block text-white">Impact.</span>
-          </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }} className="text-[clamp(13px,1.6vw,17px)] font-light text-[#777] tracking-wide mt-8 mb-12 max-w-[500px] mx-auto leading-relaxed">Cinematic storytelling meets retention-driven strategy. We engineer moments people feel — not content they skip.</motion.p>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }} className="flex gap-3.5 justify-center flex-wrap">
-            <a href="#contact" className="btn-primary font-mono text-[10px] tracking-[3px] uppercase text-black bg-gradient-to-r from-[#d4a843] to-[#e8822a] py-3.5 px-9 relative overflow-hidden transition-all hover:scale-105 hover:shadow-[0_8px_40px_rgba(212,168,67,0.35)] inline-block">Build Your Hype Machine →</a>
-            <a href="#services" className="btn-secondary font-mono text-[10px] tracking-[3px] uppercase text-white border border-[rgba(212,168,67,0.35)] py-3.5 px-9 transition-all hover:border-[#d4a843] hover:text-[#d4a843] inline-block">Our Arsenal</a>
-          </motion.div>
-        </div>
-
-        <div className="absolute right-[6%] bottom-[12%] font-bebas text-[220px] leading-none text-transparent [-webkit-text-stroke:1px_rgba(212,168,67,0.06)] pointer-events-none z-2 transition-transform duration-200" style={{ transform: `translateY(${typeof window !== 'undefined' ? window.scrollY * 0.28 : 0}px)` }}>1</div>
-
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 animate-[fadeUp_0.8s_ease_forwards_1.6s]">
-          <span className="font-mono text-[8px] tracking-[4px] uppercase text-[#777]">Scroll</span>
-          <div className="scroll-line" />
-        </div>
-      </section>
-
-      {/* Ticker */}
-      <div className="bg-[#d4a843] overflow-hidden py-2.5 relative z-5">
-        <div className="ticker-track flex w-max">
-          {[...Array(2)].map((_, i) => (
-            <React.Fragment key={i}>
-              <span className="ticker-item font-bebas text-[17px] tracking-[4px] text-black px-7 whitespace-nowrap">Brand Films</span>
-              <span className="ticker-item text-[#e8822a] px-0">✦</span>
-              <span className="ticker-item font-bebas text-[17px] tracking-[4px] text-black px-7 whitespace-nowrap">Social Media Strategy</span>
-              <span className="ticker-item text-[#e8822a] px-0">✦</span>
-              <span className="ticker-item font-bebas text-[17px] tracking-[4px] text-black px-7 whitespace-nowrap">Cinematic Production</span>
-              <span className="ticker-item text-[#e8822a] px-0">✦</span>
-              <span className="ticker-item font-bebas text-[17px] tracking-[4px] text-black px-7 whitespace-nowrap">Event Coverage</span>
-              <span className="ticker-item text-[#e8822a] px-0">✦</span>
-              <span className="ticker-item font-bebas text-[17px] tracking-[4px] text-black px-7 whitespace-nowrap">Algorithm Hacking</span>
-              <span className="ticker-item text-[#e8822a] px-0">✦</span>
-              <span className="ticker-item font-bebas text-[17px] tracking-[4px] text-black px-7 whitespace-nowrap">Hype-Cycle Engineering</span>
-              <span className="ticker-item text-[#e8822a] px-0">✦</span>
-              <span className="ticker-item font-bebas text-[17px] tracking-[4px] text-black px-7 whitespace-nowrap">Digital Marketing</span>
-              <span className="ticker-item text-[#e8822a] px-0">✦</span>
-            </React.Fragment>
+        {/* Nav */}
+        <div className="flex gap-0.5 overflow-x-auto">
+          {sections.map(s => (
+            <button
+              key={s.id}
+              onClick={() => setActive(s.id)}
+              className={`font-sans text-xs px-3.5 py-2 border-b-2 whitespace-nowrap transition-colors ${
+                active === s.id
+                  ? "border-gray-900 text-gray-900 font-medium"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <i className={`ti ${s.icon} text-sm mr-1.5 align-middle inline-block`} aria-hidden="true" />
+              {s.label}
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Manifesto Section */}
-      <section id="manifesto" className="px-6 md:px-12 py-20 md:py-[130px] max-w-[1200px] mx-auto grid md:grid-cols-2 gap-12 md:gap-20">
-        <div>
-          <SectionLabel>Our Origin</SectionLabel>
-          <RevealOnScroll delay={1}>
-            <h2 className="font-bebas text-[clamp(44px,5.5vw,76px)] leading-[1.02] mb-7">Grabbing attention is <em className="not-italic bg-gradient-to-r from-[#d4a843] to-[#e8822a] bg-clip-text text-transparent">science</em> —<br />keeping it is <em className="not-italic bg-gradient-to-r from-[#d4a843] to-[#e8822a] bg-clip-text text-transparent">art.</em></h2>
-          </RevealOnScroll>
-          <RevealOnScroll delay={2}>
-            <p className="text-[15px] font-light leading-relaxed text-[#999] mb-8">Born between the precision of <strong className="text-white font-semibold">ISER labs</strong> and the hustle of <strong className="text-white font-semibold">Indore</strong>, we learned one thing early. We don't make cookie-cutter reels.</p>
-            <p className="text-[15px] font-light leading-relaxed text-[#999] mb-8">We bring <strong className="text-white font-semibold">cinematic storytelling to mobile screens</strong>, blending retention-driven strategy with Hollywood-level production. No "post and pray" — we put the plan into a system. Whether we're building the hype cycle for a festival or capturing a massive crowd, <strong className="text-white font-semibold">we engineer moments people feel.</strong></p>
-          </RevealOnScroll>
-          <RevealOnScroll delay={3}>
-            <a href="#contact" className="btn-primary font-mono text-[10px] tracking-[3px] uppercase text-black bg-gradient-to-r from-[#d4a843] to-[#e8822a] py-3.5 px-9 inline-block mt-2 hover:scale-105 transition-transform">Start the Conversation</a>
-          </RevealOnScroll>
-        </div>
-        <div className="stats-grid border border-[rgba(212,168,67,0.08)] bg-[rgba(212,168,67,0.08)]">
-          <StatBox target={52.4} suffix="K+" label="Unique<br>Reach" isDecimal />
-          <StatBox target={114.6} suffix="K+" label="Video<br>Plays" isDecimal />
-          <StatBox target={84.2} suffix="%" label="Non-Follower<br>Recruitment" isDecimal />
-          <StatBox target={4800} suffix="+" label="Saves &<br>Shares" />
-        </div>
-      </section>
-
-      {/* Services Section */}
-      <section id="services" className="bg-[#111] py-20 md:py-[120px] px-6 md:px-12 relative">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#d4a843] to-transparent opacity-25" />
-        <div className="max-w-[1200px] mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-18 gap-5">
-            <div>
-              <SectionLabel>Core Arsenal</SectionLabel>
-              <RevealOnScroll delay={1}>
-                <h2 className="font-bebas text-[clamp(44px,6.5vw,90px)] leading-[0.92]">What We<br /><em className="not-italic bg-gradient-to-r from-[#d4a843] to-[#ff6b35] bg-clip-text text-transparent">Deploy</em></h2>
-              </RevealOnScroll>
+      {/* Content */}
+      <div className="p-7 max-w-4xl mx-auto">
+        {/* Overview Section */}
+        {active === "overview" && (
+          <div className="space-y-4">
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <div className="font-sans text-[11px] tracking-wide text-gray-500 uppercase mb-2">
+                The Problem
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 mb-3 leading-tight">
+                India has financial access. It doesn't have financial understanding.
+              </h2>
+              <p className="font-sans text-sm text-gray-600 leading-relaxed">
+                UPI transactions break records daily. Stock market participation is at an all-time high. Yet millions still struggle with basic concepts — credit scores, retirement planning, predatory lending. The gap between financial access and financial understanding has never been wider. Most solutions teach. Nobody intervenes.
+              </p>
             </div>
-            <RevealOnScroll delay={2}>
-              <p className="max-w-[280px] text-[13px] text-[#777] leading-relaxed font-light">Strategy, storytelling, and cinematic production — all engineered to turn attention into impact.</p>
-            </RevealOnScroll>
-          </div>
-          <div className="grid md:grid-cols-3 gap-px bg-[rgba(212,168,67,0.07)]">
-            <ServiceCard num="01" name="Cinematic Firepower" subtitle="Brand Films & Ads" desc="No shaky phone footage. Cinema rigs, prime lenses, Hollywood-grade color — making your brand look premium, cinematic, and impossible to skip." icon={serviceIcons.cinema} delay={0} />
-            <ServiceCard num="02" name="Hype-Cycle Engineering" subtitle="Events & Launches" desc="From product drops to massive festivals — teasers, countdowns, reveals, campaigns that create digital hype machines and turn curiosity into sellouts." icon={serviceIcons.hype} delay={1} />
-            <ServiceCard num="03" name="Algorithm Hacking" subtitle="Social SEO & SMM" desc="Posting and praying is dead. Content crafted around watch-time, holding psychology, and platform strategies. Decode trends, dominate the feed." icon={serviceIcons.algorithm} delay={2} />
-            <ServiceCard num="04" name="Viral Recruitment" subtitle="Audience Growth" desc="84% non-follower recruitment. We don't make content for you — we make it for your future community. Convert cold viewers into loyal customers." icon={serviceIcons.viral} delay={0} />
-            <ServiceCard num="05" name="Algo Visibility" subtitle="Strategic Positioning" desc="524K+ unique reach through strategic algorithm positioning. We decode platform trends, optimize keywords, engineer discoverability that compounds." icon={serviceIcons.visibility} delay={1} />
-            <ServiceCard num="06" name="Event Coverage" subtitle="Festivals & Productions" desc="4,800+ saves and shares. Real engagement, real FOMO, real walk-ins. Large-scale events captured with the same cinematic care as premium brand films." icon={serviceIcons.event} delay={2} />
-          </div>
-        </div>
-      </section>
 
-      {/* Software Arsenal Section */}
-      <section id="software" className="py-20 md:py-[120px] px-6 md:px-12 relative">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(212,168,67,0.2)] to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(212,168,67,0.2)] to-transparent" />
-        <div className="max-w-[1200px] mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-18 gap-5">
-            <div>
-              <SectionLabel>Tech Stack</SectionLabel>
-              <RevealOnScroll delay={1}>
-                <h2 className="font-bebas text-[clamp(44px,6vw,86px)] leading-[0.92]">Our Creative<br /><em className="not-italic bg-gradient-to-r from-[#d4a843] to-[#e8822a] bg-clip-text text-transparent">Arsenal</em></h2>
-              </RevealOnScroll>
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <div className="font-sans text-[11px] tracking-wide text-gray-500 uppercase mb-2">
+                Our Solution
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 mb-3 leading-tight">
+                ArthSaathi — Your Financial Guardian Network
+              </h2>
+              <p className="font-sans text-sm text-gray-600 leading-relaxed mb-4">
+                A 6-agent agentic AI system that intercepts bad financial decisions at the exact moment they happen, builds financial immunity in students before the crisis hits, and scales through India's existing NGO networks so one educator reaches 200 people.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { label: "Target users", value: "5 persona segments" },
+                  { label: "AI agents", value: "6 specialized" },
+                  { label: "Primary channel", value: "WhatsApp + Voice" },
+                  { label: "Success metric", value: "ArthScore (behavioral)" },
+                ].map(m => (
+                  <div key={m.label} className="bg-gray-50 rounded-lg p-3">
+                    <div className="font-sans text-xs text-gray-500 mb-1">{m.label}</div>
+                    <div className="font-sans text-sm font-medium text-gray-900">{m.value}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <RevealOnScroll delay={2}>
-              <p className="max-w-[280px] text-[13px] text-[#777] leading-relaxed font-light">Hollywood-grade tools in the hands of storytellers. Every frame, every cut, every pixel — precision crafted.</p>
-            </RevealOnScroll>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[rgba(212,168,67,0.07)]">
-            <SoftwareCard name="Photoshop" desc="Photo Editing<br>Compositing" bgColor="#001e36" icon={softwareIcons.ps} delay={0} />
-            <SoftwareCard name="Illustrator" desc="Vector Art<br>Brand Design" bgColor="#310000" icon={softwareIcons.ai} delay={1} />
-            <SoftwareCard name="Premiere Pro" desc="Video Editing<br>Post Production" bgColor="#00005b" icon={softwareIcons.pr} delay={2} />
-            <SoftwareCard name="Lightroom" desc="Color Grading<br>Retouching" bgColor="#001a3d" icon={softwareIcons.lr} delay={3} />
-            <SoftwareCard name="After Effects" desc="Motion Graphics<br>VFX" bgColor="#1b003b" icon={softwareIcons.ae} delay={0} />
-            <SoftwareCard name="Blender" desc="3D Rendering<br>Animation" bgColor="#1a1a2e" icon={softwareIcons.blender} delay={1} />
-            <SoftwareCard name="DaVinci Resolve" desc="Pro Color Grading<br>Audio Mastering" bgColor="#0a1628" icon={softwareIcons.davinci} delay={2} />
-            <SoftwareCard name="Canva" desc="Rapid Design<br>Social Assets" bgColor="#0a1f1a" icon={softwareIcons.canva} delay={3} />
-          </div>
-        </div>
-      </section>
 
-      {/* Cinematic Showcase */}
-      <section id="cinematic-showcase" className="bg-[#111]">
-        <div className="px-6 md:px-12 pt-20 md:pt-[100px] pb-10 max-w-[1200px] mx-auto">
-          <SectionLabel>Visual Language</SectionLabel>
-          <RevealOnScroll delay={1}>
-            <h2 className="font-bebas text-[clamp(44px,7vw,100px)] leading-[0.9]">Cinematic<br /><em className="not-italic bg-gradient-to-r from-[#d4a843] to-[#ff6b35] bg-clip-text text-transparent">Craft</em></h2>
-          </RevealOnScroll>
-        </div>
-        <div className="cine-strip relative overflow-x-hidden">
-          <div className="cine-track flex">
-            {[...Array(2)].map((_, idx) => (
-              <React.Fragment key={idx}>
-                <CinematicCard label="CINEMA RIG" visualClass="cv1" />
-                <CinematicCard label="STAGE LIGHTING" visualClass="cv2" />
-                <CinematicCard label="FILM CRAFT" visualClass="cv3" />
-                <CinematicCard label="BOKEH & DEPTH" visualClass="cv4" />
-                <CinematicCard label="COLOR GRADE" visualClass="cv5" />
-                <CinematicCard label="MOTION & TIME" visualClass="cv6" />
-              </React.Fragment>
-            ))}
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <div className="font-sans text-[11px] tracking-wide text-gray-500 uppercase mb-3">
+                Pitch in 3 sentences
+              </div>
+              <blockquote className="m-0 p-4 border-l-[3px] border-gray-400 italic text-sm text-gray-800 leading-relaxed bg-gray-50 rounded-r-lg">
+                ArthSaathi is a 6-agent financial guardian system that intervenes at the exact moment of a bad financial decision — not just after. It builds financial immunity in students through life simulation, protects gig workers from predatory lending in real time, and scales through India's existing NGO networks so one educator reaches 200 people. Success is measured not by lessons completed but by the ArthScore — a behavioral health metric that tracks whether people actually change what they do with money.
+              </blockquote>
+            </div>
           </div>
-        </div>
-        <div className="px-6 md:px-12 py-12 md:py-[100px] max-w-[1200px] mx-auto">
-          <div className="flex flex-wrap gap-2.5">
-            {['Brand Films', 'Festival Coverage', 'Product Launches', 'Reels & Shorts', 'Event Teasers', 'Countdowns', 'Reveal Campaigns', 'Social Ads', 'Color Grading', 'Motion Graphics'].map(tag => (
-              <span key={tag} className="tag font-mono text-[8px] tracking-[3px] uppercase text-[#777] border border-[rgba(212,168,67,0.15)] py-2 px-4 transition-all hover:border-[rgba(212,168,67,0.5)] hover:text-[#d4a843] cursor-default">{tag}</span>
-            ))}
-          </div>
-        </div>
-      </section>
+        )}
 
-      {/* Process Section */}
-      <section id="process" className="py-20 md:py-[130px] px-6 md:px-12">
-        <div className="max-w-[1200px] mx-auto">
-          <SectionLabel>How We Work</SectionLabel>
-          <RevealOnScroll delay={1}>
-            <h2 className="font-bebas text-[clamp(44px,6.5vw,90px)] leading-[0.9] mb-12 md:mb-20">The System<br /><span className="bg-gradient-to-r from-[#d4a843] to-[#ff6b35] bg-clip-text text-transparent">Behind the Magic</span></h2>
-          </RevealOnScroll>
-          <div className="process-steps">
-            {[
-              { num: '01', name: 'Decode', desc: 'We study your brand, audience, and competition. We decode the algorithm, identify content gaps, and map the psychological hooks that make your audience stop scrolling.' },
-              { num: '02', name: 'Engineer', desc: 'Strategy before a single frame is shot. We engineer a hype cycle — teasers, reveals, campaign beats — designed to build anticipation and convert curiosity into action.' },
-              { num: '03', name: 'Produce', desc: 'Full cinema rigs, prime lenses, Hollywood-grade color. Every frame intentional. We don\'t hand you footage — we hand you a finished cinematic asset ready to dominate.' },
-              { num: '04', name: 'Deploy', desc: 'We optimize for platform algorithms, schedule for peak engagement, and monitor performance in real time. Content goes out with strategy — not hope.' },
-              { num: '05', name: 'Amplify', desc: 'Analyze, double down on winners, iterate continuously. Your brand reaches the right audience — and stays there. Impact compounds. Growth is engineered.' },
-            ].map((step, idx) => (
-              <RevealOnScroll key={step.num} delay={idx}>
-                <div className="process-step group grid grid-cols-[55px_1fr] md:grid-cols-[72px_1fr_1fr] gap-5 md:gap-10 py-12 border-b border-[rgba(212,168,67,0.08)] last:border-b-0 transition-all hover:pl-4 cursor-default">
-                  <div className="step-num font-bebas text-5xl md:text-6xl leading-none text-transparent [-webkit-text-stroke:1px_rgba(212,168,67,0.25)] group-hover:[-webkit-text-stroke-color:#d4a843] transition-all">{step.num}</div>
-                  <div className="step-name font-bebas text-2xl md:text-3xl tracking-[2px] pt-2">{step.name}</div>
-                  <p className="step-desc text-[13px] font-light text-[#888] leading-relaxed pt-3 md:col-span-1 md:pt-0">{step.desc}</p>
+        {/* Personas Section */}
+        {active === "personas" && (
+          <div className="space-y-4">
+            {personas.map(p => (
+              <div key={p.name} className="bg-white border border-gray-200 rounded-xl p-5 grid grid-cols-[auto,1fr] gap-5">
+                <div className="flex flex-col items-center gap-1.5">
+                  <div
+                    className="w-13 h-13 rounded-full border-2 flex items-center justify-center font-sans text-lg font-bold"
+                    style={{ background: p.bg, borderColor: `${p.color}30`, color: p.color }}
+                  >
+                    {p.name[0]}
+                  </div>
+                  <span
+                    className="font-sans text-[11px] py-0.5 px-2 rounded-full font-medium"
+                    style={{ background: p.bg, color: p.color }}
+                  >
+                    {p.tag}
+                  </span>
                 </div>
-              </RevealOnScroll>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Clients Section */}
-      <section id="clients" className="py-20 md:py-[110px] px-6 md:px-12 bg-gradient-to-br from-[rgba(212,168,67,0.03)] to-transparent border-t border-[rgba(212,168,67,0.08)]">
-        <div className="max-w-[1200px] mx-auto">
-          <SectionLabel className="justify-center">Who We Work With</SectionLabel>
-          <RevealOnScroll delay={1}>
-            <h2 className="font-bebas text-[clamp(36px,5vw,60px)] text-center mb-14">Built for Bold <span className="bg-gradient-to-r from-[#d4a843] to-[#e8822a] bg-clip-text text-transparent">Ambitions</span></h2>
-          </RevealOnScroll>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[rgba(212,168,67,0.07)]">
-            {['Brands', 'Startups', 'Institutions', 'Events'].map((client, idx) => (
-              <RevealOnScroll key={client} delay={idx}>
-                <div className="client-type bg-black py-14 text-center transition-all hover:bg-[rgba(212,168,67,0.05)] cursor-default">
-                  <span className="client-icon text-3xl mb-4 block">{['◈', '◉', '◫', '◬'][idx]}</span>
-                  <div className="client-name font-bebas text-xl md:text-2xl tracking-[3px]">{client}</div>
+                <div>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="font-sans text-base font-semibold text-gray-900">{p.name}</span>
+                    <span className="font-sans text-xs text-gray-500">
+                      Age {p.age} · {p.location}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
+                    {[["Income", p.income], ["Language", p.language]].map(([k, v]) => (
+                      <div key={k}>
+                        <span className="font-sans text-[11px] text-gray-500">{k}: </span>
+                        <span className="font-sans text-xs text-gray-800 font-medium">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mb-2">
+                    <div className="font-sans text-[11px] text-gray-500 mb-0.5">PAIN POINT</div>
+                    <p className="font-sans text-xs text-gray-800 leading-relaxed">{p.pain}</p>
+                  </div>
+                  <div
+                    className="p-2.5 rounded-lg border-l-[3px]"
+                    style={{ background: p.bg, borderLeftColor: p.color }}
+                  >
+                    <div className="font-sans text-[11px] mb-0.5" style={{ color: p.color }}>
+                      WHAT THEY NEED
+                    </div>
+                    <p className="font-sans text-xs text-gray-800 leading-relaxed">{p.need}</p>
+                  </div>
                 </div>
-              </RevealOnScroll>
+              </div>
             ))}
           </div>
-        </div>
-      </section>
+        )}
 
-      {/* Team Section - Updated with Game-style Cards and Modal */}
-      <section id="team" className="py-20 md:py-[130px] px-6 md:px-12 bg-[#111] border-t border-[rgba(212,168,67,0.08)]">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-18 gap-3.5">
-            <div>
-              <SectionLabel>The Crew</SectionLabel>
-              <RevealOnScroll delay={1}>
-                <h2 className="font-bebas text-[clamp(44px,6.5vw,90px)] leading-[0.9]">8 Minds.<br /><em className="not-italic bg-gradient-to-r from-[#d4a843] to-[#e8822a] bg-clip-text text-transparent">One Mission.</em></h2>
-              </RevealOnScroll>
+        {/* Agents Section */}
+        {active === "agents" && (
+          <div className="space-y-3">
+            <p className="font-sans text-xs text-gray-500 mb-2">
+              Click any agent to expand details. All agents share a common memory store and are coordinated by the Orchestrator.
+            </p>
+            {agents.map((a, i) => (
+              <div
+                key={a.name}
+                className="bg-white border rounded-xl overflow-hidden transition-colors"
+                style={{
+                  borderColor: expandedAgent === i ? `${a.color}60` : "var(--color-border-tertiary, #e5e7eb)",
+                  borderWidth: expandedAgent === i ? "1.5px" : "0.5px",
+                }}
+              >
+                <div
+                  onClick={() => setExpandedAgent(expandedAgent === i ? null : i)}
+                  className="p-4 flex items-center gap-3.5 cursor-pointer"
+                >
+                  <div
+                    className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background: a.bg }}
+                  >
+                    <i className={`ti ${a.icon} text-lg`} style={{ color: a.color }} aria-hidden="true" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-sans text-sm font-semibold text-gray-900">
+                      Agent {i + 1}: {a.name}
+                    </div>
+                    <div className="font-sans text-xs text-gray-500 mt-0.5">
+                      {a.role.split(".")[0]}.
+                    </div>
+                  </div>
+                  <i
+                    className={`ti ${expandedAgent === i ? "ti-chevron-up" : "ti-chevron-down"} text-gray-500 text-base`}
+                    aria-hidden="true"
+                  />
+                </div>
+                {expandedAgent === i && (
+                  <div className="border-t border-gray-200 p-4 bg-gray-50">
+                    <p className="font-sans text-xs text-gray-700 leading-relaxed mb-4">{a.role}</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <div className="font-sans text-[11px] tracking-wide text-gray-500 mb-1.5">
+                          INPUTS
+                        </div>
+                        {a.inputs.map(inp => (
+                          <div key={inp} className="font-sans text-xs text-gray-700 py-0.5 flex items-center gap-1.5">
+                            <i className="ti ti-arrow-right text-xs" style={{ color: a.color }} aria-hidden="true" /> {inp}
+                          </div>
+                        ))}
+                      </div>
+                      <div>
+                        <div className="font-sans text-[11px] tracking-wide text-gray-500 mb-1.5">
+                          OUTPUTS
+                        </div>
+                        {a.outputs.map(out => (
+                          <div key={out} className="font-sans text-xs text-gray-700 py-0.5 flex items-center gap-1.5">
+                            <i className="ti ti-check text-xs" style={{ color: a.color }} aria-hidden="true" /> {out}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+            {/* Responsible AI note */}
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3.5 flex gap-3 items-start">
+              <i className="ti ti-shield text-red-600 text-lg flex-shrink-0 mt-0.5" aria-hidden="true" />
+              <div>
+                <div className="font-sans text-xs font-semibold text-red-700 mb-1">
+                  Responsible AI Layer (across all agents)
+                </div>
+                <p className="font-sans text-[11px] text-red-800 leading-relaxed">
+                  No investment advice · SEBI/RBI compliance guardrails · Hallucination detection on financial data · Human escalation triggers · Data minimization (no raw financial data stored) · Transparent AI limitations disclosure · Consent-based behavioral tracking
+                </p>
+              </div>
             </div>
-            <RevealOnScroll delay={2}>
-              <p className="team-note text-xs text-[#777] italic font-light max-w-[200px] text-right leading-relaxed md:text-left">Click on any agent to view the full dossier.</p>
-            </RevealOnScroll>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {teamMembers.map((member, idx) => (
-              <TeamMemberCard
-                key={member.id}
-                member={member}
-                onClick={() => setSelectedMember(member)}
-                delay={idx % 4}
-              />
+        )}
+
+        {/* Differentiators Section */}
+        {active === "differentiators" && (
+          <div className="space-y-3">
+            <p className="font-sans text-xs text-gray-500 mb-2">
+              8 differentiators that separate ArthSaathi from every other team's submission. Click to expand.
+            </p>
+            {differentiators.map((d, i) => (
+              <div
+                key={d.number}
+                className="bg-white border rounded-xl overflow-hidden"
+                style={{
+                  borderColor: expandedDiff === i ? `${d.color}50` : "var(--color-border-tertiary, #e5e7eb)",
+                  borderWidth: expandedDiff === i ? "1.5px" : "0.5px",
+                }}
+              >
+                <div
+                  onClick={() => setExpandedDiff(expandedDiff === i ? null : i)}
+                  className="p-4 flex items-center gap-3.5 cursor-pointer"
+                >
+                  <div
+                    className="w-8 h-8 rounded-md flex items-center justify-center font-sans text-[11px] font-bold flex-shrink-0"
+                    style={{ background: d.bg, color: d.color }}
+                  >
+                    {d.number}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-sans text-sm font-semibold text-gray-900">{d.title}</span>
+                      <span
+                        className="font-sans text-[11px] py-0.5 px-2 rounded-full"
+                        style={{ background: d.bg, color: d.color }}
+                      >
+                        {d.tag}
+                      </span>
+                    </div>
+                    <div className="font-sans text-xs text-gray-500 mt-0.5">{d.impact}</div>
+                  </div>
+                  <i
+                    className={`ti ${expandedDiff === i ? "ti-chevron-up" : "ti-chevron-down"} text-gray-500 text-base`}
+                    aria-hidden="true"
+                  />
+                </div>
+                {expandedDiff === i && (
+                  <div className="border-t border-gray-200 p-4">
+                    <p className="font-sans text-xs text-gray-700 leading-relaxed">{d.description}</p>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
-        </div>
-      </section>
+        )}
 
-      {/* Modal for Team Member Details */}
-      <AnimatePresence>
-        {selectedMember && <TeamModal member={selectedMember} onClose={() => setSelectedMember(null)} />}
-      </AnimatePresence>
+        {/* Tech Stack Section with Free Resources Highlight */}
+        {active === "techstack" && (
+          <div>
+            <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 mb-4 flex gap-2.5 items-start">
+              <i className="ti ti-alert-triangle text-amber-700 text-base flex-shrink-0 mt-0.5" aria-hidden="true" />
+              <p className="font-sans text-xs text-amber-800 m-0">
+                Critical: The executive summary must list ALL tools with EXACT version numbers. Nomura sets up your environment in advance. Missing or wrong versions = disqualification on Grand Finale day.
+              </p>
+            </div>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-24 md:py-[150px] px-6 md:px-12 text-center relative">
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-radial-[circle_at_center] from-[rgba(212,168,67,0.05)] to-transparent pointer-events-none" />
-        <p className="contact-eyebrow font-mono text-[9px] tracking-[5px] uppercase text-[#d4a843] mb-6">Available for Projects, Partnerships & Productions</p>
-        <RevealOnScroll delay={1}>
-          <h2 className="font-bebas text-[clamp(52px,9.5vw,130px)] leading-[0.9] mb-9">Let's Build<br /><em className="not-italic bg-gradient-to-r from-[#d4a843] to-[#ff6b35] bg-clip-text text-transparent">Your Hype Machine.</em></h2>
-        </RevealOnScroll>
-        <RevealOnScroll delay={2}>
-          <p className="text-[15px] font-light text-[#777] leading-relaxed max-w-[480px] mx-auto mb-11">Strategy, storytelling, cinematic production — all engineered to turn attention into impact. Indore · Bhopal and beyond.</p>
-          <a href="mailto:1carus.reach@gmail.com" className="contact-email font-mono text-sm tracking-[2px] text-[#d4a843] border-b border-[rgba(212,168,67,0.3)] pb-1 inline-block mb-13 hover:border-[#d4a843] hover:text-[#e8822a] transition-all">1carus.reach@gmail.com</a>
-        </RevealOnScroll>
-        <RevealOnScroll delay={3}>
-          <div className="contact-cta-group flex gap-3.5 justify-center flex-wrap">
-            <a href="mailto:1carus.reach@gmail.com" className="btn-primary font-mono text-[10px] tracking-[3px] uppercase text-black bg-gradient-to-r from-[#d4a843] to-[#e8822a] py-3.5 px-9 inline-block">Let's Create →</a>
-            <a href="#services" className="btn-secondary font-mono text-[10px] tracking-[3px] uppercase text-white border border-[rgba(212,168,67,0.35)] py-3.5 px-9 inline-block transition-all hover:border-[#d4a843] hover:text-[#d4a843]">Explore Services</a>
+            {/* Free Resources Summary Card */}
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <i className="ti ti-discount text-emerald-700 text-base" aria-hidden="true" />
+                <h3 className="font-sans text-sm font-semibold text-emerald-800">💰 100% Free & Open Source Resources</h3>
+              </div>
+              <p className="font-sans text-xs text-emerald-700 mb-3">
+                ArthSaathi is built entirely on free tiers, open-source software, and freely available APIs. No paid licenses required for pilot or scale-up.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "React", "Node.js", "MongoDB", "LangGraph", "Whisper (free tier)",
+                  "ElevenLabs (free tier)", "WhatsApp API (free tier)", "IndicTrans2",
+                  "Docker", "Tailwind CSS", "Chroma DB", "FastAPI"
+                ].map(res => (
+                  <span key={res} className="bg-white text-emerald-700 text-[11px] font-medium px-2 py-1 rounded-full border border-emerald-200">
+                    {res}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {techStack.map(cat => (
+                <div key={cat.category} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                  <div
+                    className="px-5 py-3 flex items-center gap-2.5 border-b border-gray-200"
+                    style={{ background: cat.bg }}
+                  >
+                    <i className={`ti ${cat.icon} text-base`} style={{ color: cat.color }} aria-hidden="true" />
+                    <span className="font-sans text-xs font-semibold" style={{ color: cat.color }}>
+                      {cat.category}
+                    </span>
+                  </div>
+                  <div>
+                    {cat.items.map((item, idx) => (
+                      <div
+                        key={item.name}
+                        className="px-5 py-2.5 grid grid-cols-[180px,1fr,auto,auto] gap-3 items-center border-b border-gray-100 last:border-b-0"
+                      >
+                        <span className="font-mono text-xs text-gray-800 font-medium">{item.name}</span>
+                        <span className="font-sans text-xs text-gray-500">{item.use}</span>
+                        <span className="font-mono text-[11px] bg-gray-100 border border-gray-200 rounded px-2 py-0.5 text-gray-600 whitespace-nowrap">
+                          {item.version}
+                        </span>
+                        {item.free !== undefined && (
+                          <span
+                            className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full whitespace-nowrap ${
+                              item.free ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {item.free ? "Free" : "Free Tier"}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </RevealOnScroll>
-      </section>
+        )}
 
-      {/* Footer */}
-      <footer className="py-9 px-6 md:px-12 border-t border-[rgba(212,168,67,0.08)] flex flex-col md:flex-row justify-between items-center gap-4">
-        <div className="footer-logo font-bebas text-xl tracking-[4px]"><span className="text-[#d4a843]">1</span>CARUS</div>
-        <div className="footer-tagline font-mono text-[7px] tracking-[3px] uppercase text-[#777] text-center">Science in our roots · Cinema in our souls · Impact in our mission</div>
-        <div className="footer-location font-mono text-[8px] tracking-[2px] uppercase text-[#777] flex items-center gap-2"><span className="text-[#d4a843] text-[11px]">◎</span> Indore · Bhopal</div>
-      </footer>
+        {/* Timeline Section */}
+        {active === "timeline" && (
+          <div>
+            <div className="relative pl-7">
+              <div className="absolute left-2.5 top-6 bottom-6 w-px bg-gray-200" />
+              {timeline.map((t, i) => (
+                <div key={t.date} className={`relative ${i < timeline.length - 1 ? "mb-5" : ""}`}>
+                  <div
+                    className="absolute -left-[1.375rem] top-3.5 w-3 h-3 rounded-full"
+                    style={{
+                      background: t.status === "done" ? "#3B6D11" : t.status === "urgent" ? "#A32D2D" : "white",
+                      border: t.status === "upcoming" ? "1.5px solid #9ca3af" : "none",
+                    }}
+                  />
+                  <div
+                    className={`bg-white border rounded-lg p-3.5 ${
+                      t.status === "urgent" ? "border-red-300" : "border-gray-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
+                      <span
+                        className={`font-sans text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                          t.status === "done"
+                            ? "bg-green-100 text-green-700"
+                            : t.status === "urgent"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {t.date}
+                      </span>
+                      <span className="font-sans text-sm font-semibold text-gray-900">{t.label}</span>
+                      {t.status === "urgent" && (
+                        <span className="font-sans text-[11px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">
+                          URGENT
+                        </span>
+                      )}
+                    </div>
+                    <p className="font-sans text-xs text-gray-500 leading-relaxed">{t.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-      <style>{`
-        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
-        .animate-fadeUp { animation: fadeUp 0.8s ease forwards; }
-        .btn-primary::before { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.2); transform: translateX(-100%); transition: transform 0.4s ease; }
-        .btn-primary:hover::before { transform: translateX(0); }
-        .btn-primary, .btn-secondary { position: relative; z-index: 1; }
-        .btn-primary { overflow: hidden; }
-      `}</style>
-    </>
+            <div className="bg-white border border-gray-200 rounded-xl p-5 mt-6">
+              <div className="font-sans text-xs font-semibold text-gray-900 mb-3">Executive Summary checklist</div>
+              {[
+                "About us — 2–3 sentences per team member",
+                "Problem understanding — use Rajesh's loan story as the hook",
+                "Proposed solution — ArthSaathi, 6-agent system",
+                "Key differentiators — decision-moment intervention, ArthScore, NGO multiplier",
+                "All tools + exact version numbers (copy from Tech Stack tab)",
+                "File named: [College]_[TeamName]_[FirstNames]_Executive Summary",
+                "Email to kakushin@nomura.com by June 11, 5:00 PM",
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className={`flex items-start gap-2.5 py-1.5 ${
+                    i < 6 ? "border-b border-gray-100" : ""
+                  }`}
+                >
+                  <i className="ti ti-circle-check text-green-600 text-base flex-shrink-0 mt-0.5" aria-hidden="true" />
+                  <span className="font-sans text-xs text-gray-700 leading-relaxed">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
-};
-
-export default App;
+}
