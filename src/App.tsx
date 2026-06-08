@@ -523,7 +523,7 @@ export default function ArthSaathiDoc() {
                 }}
               >
                 <div
-                  onClick={() => setExpandedAgent(expandedAgent === i ? null : i)}
+                  onClick={() => setExpandedAgent((expandedAgent === i ? null : i)as any)}
                   className="p-4 flex items-center gap-3.5 cursor-pointer"
                 >
                   <div
@@ -605,7 +605,7 @@ export default function ArthSaathiDoc() {
                 }}
               >
                 <div
-                  onClick={() => setExpandedDiff(expandedDiff === i ? null : i)}
+                  onClick={() => setExpandedDiff((expandedDiff === i ? null : i) as any)}
                   className="p-4 flex items-center gap-3.5 cursor-pointer"
                 >
                   <div
